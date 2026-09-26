@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="十月突破行動日記：每天回應一個提問、記錄行動與心情，月底回顧整個月的成長。">
+<title>十月突破日記</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#F3F4F8; --surface:#FFFFFF; --sunk:#E9EBF2; --ink:#1D2033; --muted:#5E6378; --faint:#8A8FA3; --line:#DADDE8;
+  --accent:#3A46A8; --accent-ink:#FFFFFF; --accent-soft:#E4E7F7;
+  --purple:#7B4BC9; --blue:#2C6CD2; --red:#D2433B; --green:#2B9457; --yellow:#C9950F; --orange:#E06D22;
+  --good:#2B9457; --warn:#C9950F; --bad:#C2413A;
+  --display:"LXGW WenKai TC","Noto Serif TC","Kaiti TC",serif;
+  --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#13151E; --surface:#1B1E2A; --sunk:#232736; --ink:#E7E9F2; --muted:#A3A8BD; --faint:#767B91; --line:#2E3345;
+    --accent:#A3ADF5; --accent-ink:#13151E; --accent-soft:#272C47;
+    --purple:#A987EC; --blue:#6FA2F2; --red:#F07A70; --green:#5CC98B; --yellow:#E9BE4A; --orange:#F2995A;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#13151E; --surface:#1B1E2A; --sunk:#232736; --ink:#E7E9F2; --muted:#A3A8BD; --faint:#767B91; --line:#2E3345;
+  --accent:#A3ADF5; --accent-ink:#13151E; --accent-soft:#272C47;
+  --purple:#A987EC; --blue:#6FA2F2; --red:#F07A70; --green:#5CC98B; --yellow:#E9BE4A; --orange:#F2995A;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{color-scheme:light}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.7;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.25;text-wrap:balance;margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px}
+header.top h1{font-size:30px}
+header.top .sub{color:var(--muted);font-size:13px;margin-top:2px}
+.meter{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:180px}
+.meter .num{font-family:var(--mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.strip{display:grid;grid-template-columns:repeat(31,1fr);gap:2px;width:220px;max-width:100%}
+.strip i{height:10px;border-radius:2px;background:var(--sunk)}
+.strip i.on{background:var(--c)}
+
+nav.tabs{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:10px;width:max-content;max-width:100%}
+nav.tabs button{border:0;background:transparent;padding:6px 16px;border-radius:7px;cursor:pointer;color:var(--muted);font-weight:500}
+nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+.status{font-size:12px;color:var(--faint);font-family:var(--mono)}
+.note{font-size:13px;color:var(--muted);background:var(--accent-soft);border-radius:8px;padding:8px 12px}
+
+/* Today */
+.daynav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.daynav button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 12px;cursor:pointer}
+.daynav button:disabled{opacity:.35;cursor:default}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.sheet-head{padding:20px 24px 18px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:12px;
+  background:linear-gradient(to right, color-mix(in srgb,var(--c) 12%,transparent), transparent 70%)}
+.sheet-meta{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.bigdate{font-family:var(--display);font-size:40px;line-height:1;color:var(--c)}
+.wd{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);border-radius:99px;padding:1px 10px}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.question{font-family:var(--display);font-size:24px;line-height:1.45;max-width:30em}
+.action{display:flex;gap:10px;align-items:baseline;color:var(--muted)}
+.lbl{font-size:11.5px;letter-spacing:.08em;color:var(--faint);font-weight:500;white-space:nowrap}
+.sheet-body{padding:20px 24px 24px;display:flex;flex-direction:column;gap:20px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl2{font-size:13.5px;font-weight:500}
+textarea,input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical}
+textarea{min-height:110px;font-family:var(--display);font-size:17px;line-height:1.75;
+  background-image:linear-gradient(to bottom, transparent calc(1.75em - 1px), var(--line) calc(1.75em - 1px));background-size:100% 1.75em;background-attachment:local;background-position:0 10px}
+textarea:focus,input[type=text]:focus{outline:none;border-color:var(--accent)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:13.5px}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.seg.mood button{min-width:52px;display:flex;flex-direction:column;align-items:center;line-height:1.3;padding:5px 8px}
+.seg.mood b{font-family:var(--mono);font-size:15px}
+.seg.mood span{font-size:11px}
+
+/* Calendar */
+.cal{display:flex;flex-direction:column;gap:10px}
+.drow{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:stretch}
+.dlabel{border-radius:10px;padding:10px 12px;color:#fff;background:var(--c);display:flex;flex-direction:column;justify-content:center}
+.dlabel b{font-family:var(--display);font-size:18px}
+.dlabel span{font-size:12px;opacity:.9}
+:root[data-theme="dark"] .dlabel{color:#13151E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .dlabel{color:#13151E}}
+.dcells{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.cell{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 10px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:84px}
+.cell:hover{border-color:var(--c)}
+.cell.done{background:color-mix(in srgb,var(--c) 10%,var(--surface));border-color:color-mix(in srgb,var(--c) 40%,var(--line))}
+.cell.today{outline:2px solid var(--c);outline-offset:1px}
+.cell .d{font-family:var(--mono);font-size:13px;font-weight:500;font-variant-numeric:tabular-nums}
+.cell .d small{color:var(--faint);font-weight:400;margin-left:4px}
+.cell .q{font-size:12px;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cell .tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:auto}
+.tag{font-size:10.5px;border-radius:4px;padding:0 5px;line-height:1.6}
+.tag.s-done{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+.tag.s-part{background:color-mix(in srgb,var(--warn) 22%,transparent);color:var(--warn)}
+.tag.s-not{background:var(--sunk);color:var(--muted)}
+.tag.m{background:var(--sunk);color:var(--muted);font-family:var(--mono)}
+
+/* Review */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tile b{display:block;font-family:var(--mono);font-size:26px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1.2}
+.tile span{font-size:12.5px;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.panel h2{font-size:20px}
+.panel .hint{font-size:13px;color:var(--muted);margin:0}
+.chartbox{overflow-x:auto}
+.chartbox svg{display:block;width:100%;min-width:520px;height:auto}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:90px 1fr 76px;gap:10px;align-items:center;font-size:13px}
+.bar .track{height:12px;background:var(--sunk);border-radius:6px;position:relative;overflow:hidden}
+.bar .fill{position:absolute;inset:0 auto 0 0;background:color-mix(in srgb,var(--c) 45%,transparent);border-radius:6px}
+.bar .fill2{position:absolute;inset:0 auto 0 0;background:var(--c);border-radius:6px}
+.bar .v{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.takes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.takes li{display:grid;grid-template-columns:54px 1fr;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.takes li:first-child{border-top:0}
+.takes .d{font-family:var(--mono);font-size:13px;color:var(--c);font-weight:500}
+.takes .t{font-family:var(--display);font-size:16px}
+.empty{color:var(--faint);font-size:13.5px}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);border-radius:9px;padding:8px 16px;cursor:pointer;font-weight:500}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ai{font-size:14.5px;line-height:1.8}
+.ai h4{font-family:var(--display);font-size:17px;margin:14px 0 4px}
+.ai p{margin:4px 0}
+.ai ul{margin:4px 0;padding-left:1.3em}
+
+@media (max-width:680px){
+  .row2{grid-template-columns:1fr}
+  .drow{grid-template-columns:1fr}
+  .dlabel{flex-direction:row;align-items:baseline;gap:10px;padding:6px 12px}
+  .dcells{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .question{font-size:21px}
+  .sheet-head,.sheet-body{padding-inline:16px}
+  .bar{grid-template-columns:70px 1fr 64px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>十月突破日記</h1>
+      <div class="sub">2026 年 10 月 · 六種驅動力 · 31 天提問與行動</div>
+    </div>
+    <div class="meter">
+      <div class="strip" id="strip" aria-hidden="true"></div>
+      <div class="num" id="meterNum">0 / 31 天</div>
+    </div>
+  </header>
+
+  <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+    <nav class="tabs" role="tablist">
+      <button role="tab" id="tab-today" data-view="today" aria-selected="true">每日日記</button>
+      <button role="tab" id="tab-calendar" data-view="calendar" aria-selected="false">月曆總覽</button>
+      <button role="tab" id="tab-review" data-view="review" aria-selected="false">月底回顧</button>
+    </nav>
+    <span class="status" id="status">載入中…</span>
+  </div>
+  <div class="note" id="storeNote">你的日記只存在<b>這台裝置的這個瀏覽器</b>裡，不會上傳到任何地方，別人看不到。清除瀏覽器資料或換裝置之前，請先到「月底回顧」下載備份。</div>
+
+  <!-- Today -->
+  <section id="view-today" role="tabpanel" style="display:flex;flex-direction:column;gap:14px">
+    <div class="daynav">
+      <button id="prev" type="button">‹ 前一天</button>
+      <span class="status" id="dayHint"></span>
+      <button id="next" type="button">後一天 ›</button>
+    </div>
+    <article class="sheet" id="sheet">
+      <div class="sheet-head">
+        <div class="sheet-meta">
+          <span class="bigdate" id="bigdate">10/1</span>
+          <span class="wd" id="wd">星期四</span>
+          <span class="chip" id="chip">紫色驅動 · 歸屬 × 內在安全</span>
+        </div>
+        <div class="question" id="question"></div>
+        <div class="action"><span class="lbl">今日行動</span><span id="actionText"></span></div>
+      </div>
+      <div class="sheet-body">
+        <div class="field">
+          <label for="f-journal">我的回答</label>
+          <textarea id="f-journal" rows="5" placeholder="寫下你對今天提問的想法，想到什麼就寫什麼。"></textarea>
+        </div>
+        <div class="field">
+          <span class="lbl2" id="l-status">今天的行動做了嗎？</span>
+          <div class="seg" id="f-status" role="group" aria-labelledby="l-status">
+            <button type="button" data-v="done">做到了</button>
+            <button type="button" data-v="part">做了一部分</button>
+            <button type="button" data-v="not">還沒</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-action">行動紀錄</label>
+          <textarea id="f-action" rows="3" placeholder="做了什麼？過程中有什麼感受？"></textarea>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <span class="lbl2" id="l-mood">今天的心情</span>
+            <div class="seg mood" id="f-mood" role="group" aria-labelledby="l-mood">
+              <button type="button" data-v="1"><b>1</b><span>很低</span></button>
+              <button type="button" data-v="2"><b>2</b><span>低落</span></button>
+              <button type="button" data-v="3"><b>3</b><span>平穩</span></button>
+              <button type="button" data-v="4"><b>4</b><span>不錯</span></button>
+              <button type="button" data-v="5"><b>5</b><span>很好</span></button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-take">今天的一句話收穫</label>
+            <input type="text" id="f-take" placeholder="例如：原來開口求助沒有那麼難">
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- Calendar -->
+  <section id="view-calendar" role="tabpanel" hidden>
+    <div class="cal" id="cal"></div>
+  </section>
+
+  <!-- Review -->
+  <section id="view-review" role="tabpanel" hidden style="display:flex;flex-direction:column;gap:16px">
+    <div class="note" id="reviewNote"></div>
+    <div class="tiles" id="tiles"></div>
+
+    <div class="panel">
+      <h2>心情曲線</h2>
+      <p class="hint">每個點是一天的心情，顏色代表當天的驅動力。</p>
+      <div class="chartbox" id="moodChart"></div>
+    </div>
+
+    <div class="panel">
+      <h2>六種驅動力的完成度</h2>
+      <div class="legend"><span><i style="background:var(--muted);opacity:.45"></i>有寫日記</span><span><i style="background:var(--muted)"></i>行動做到</span></div>
+      <div class="bars" id="bars"></div>
+    </div>
+
+    <div class="panel">
+      <h2>31 句收穫</h2>
+      <ul class="takes" id="takes"></ul>
+    </div>
+
+    <div class="panel">
+      <h2>寫給自己的月底回顧</h2>
+      <p class="hint">看完上面的紀錄後，慢慢寫下這四題。</p>
+      <div class="field"><label for="r-break">這個月我最大的突破是什麼？</label><textarea id="r-break" rows="3"></textarea></div>
+      <div class="field"><label for="r-hard">哪一天最困難？我是怎麼過來的？</label><textarea id="r-hard" rows="3"></textarea></div>
+      <div class="field"><label for="r-self">我對自己有什麼新的認識？</label><textarea id="r-self" rows="3"></textarea></div>
+      <div class="field"><label for="r-carry">我要帶到 11 月的一件事</label><textarea id="r-carry" rows="2"></textarea></div>
+    </div>
+
+    <div class="panel">
+      <h2>請 AI 陪你回顧整個月</h2>
+      <p class="hint">按下按鈕會複製一段「回顧指令＋你整個月的日記」。貼到 Claude 或其他 AI 對話框，它會幫你整理出突破、反覆出現的模式，以及給 11 月的建議。</p>
+      <div class="btns">
+        <button class="btn" id="copyPrompt" type="button">複製 AI 回顧指令</button>
+        <button class="btn ghost" id="copyAll" type="button">只複製日記文字</button>
+        <span class="status" id="copyStatus"></span>
+      </div>
+      <textarea id="copyFallback" rows="6" hidden readonly></textarea>
+    </div>
+
+    <div class="panel">
+      <h2>備份與換裝置</h2>
+      <p class="hint">下載的備份檔可以在另一台電腦或手機上用「匯入備份」還原。</p>
+      <div class="btns">
+        <button class="btn ghost" id="exportBtn" type="button">下載備份</button>
+        <button class="btn ghost" id="importBtn" type="button">匯入備份</button>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
+        <span class="status" id="backupStatus"></span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const DRIVES=[
+  {k:'purple',name:'紫色驅動',sub:'歸屬 × 內在安全',from:1,to:5},
+  {k:'blue',name:'藍色驅動',sub:'系統 × 穩定輸出',from:6,to:10},
+  {k:'red',name:'紅色驅動',sub:'行動 × 穩定推進',from:11,to:15},
+  {k:'green',name:'綠色驅動',sub:'關係 × 穩定連結',from:16,to:20},
+  {k:'yellow',name:'黃色驅動',sub:'洞察 × 創新',from:21,to:25},
+  {k:'orange',name:'橙色驅動',sub:'成果 × 穩定輸出',from:26,to:31}
+];
+const DAYS=[
+['我的舒適圈，給了我安全感還是讓我停滯了？','誠實寫下一件你「待在舒適圈裡」的事，以及它的代價'],
+['當我想突破時，內心最常出現的恐懼是什麼？','寫下那個聲音，然後問它：「你想保護我什麼？」'],
+['我的內在安全感，是否足以支撐我面對未知？','想像最壞的情況，再想像你如何應對——你比想像中更有能力'],
+['哪些過去的突破，讓我現在更有歸屬感與自信？','寫下一次你跨出舒適圈後感到驕傲的經歷'],
+['我是否因為害怕「不被接受」而不敢改變？','思考一個你想做但擔心別人眼光的事；問自己：「五年後我會後悔不做嗎？」'],
+['我是否有計畫地拓展自己的能力邊界？','列出本季想突破的3個領域，各設定一個可衡量的小目標'],
+['我如何讓「每天一小步」成為突破的系統？','設計一個每日5分鐘的「邊界拓展練習」，今天開始'],
+['我是否追蹤自己的成長，還是只感受挫折？','開始記錄每週一個「我做到了從未做過的事」'],
+['哪些學習資源能支撐我突破當前的瓶頸？','找一本書、一門課或一位導師，今天踏出接觸的第一步'],
+['我的突破計畫，是否與我的核心目標一致？','檢視你本月的突破行動，確認它們在推進你真正想要的方向'],
+['我是否把「等準備好了再行動」當作拖延的藉口？','今天做一件「還沒準備好但可以開始」的事'],
+['我最近一次讓自己不舒服（因為成長）是什麼時候？','刻意做一件讓你有點緊張的事，記錄事後的感受'],
+['我的行動是否反映了我說自己重視的事？','對比你的「說」與「做」，找出一個需要縮短的落差'],
+['哪一個勇敢的行動，可以在今天完成？','不要計畫太久——選一件，現在就做'],
+['我是否在行動中學習，而非等待完美計畫？','回顧本月至今的突破行動，給自己一個真實的評分與鼓勵'],
+['身邊哪些人在支持我的成長，哪些在拉住我？','辨識一位你的成長夥伴，今天主動聯繫他'],
+['我是否願意讓他人看見我「正在突破中」的樣子？','今天向一個人坦承你正在挑戰的事，請他給你支持或回饋'],
+['我是否因為怕別人失望，而不敢改變自己？','思考一段關係：你在其中是做自己，還是扮演別人期待的角色？'],
+['我如何讓我的突破也激勵身邊的人？','分享一個你正在克服的挑戰，真實地說出你的感受與學習'],
+['哪段關係因為我的成長而變得更深刻？','感謝一位在你突破過程中陪伴你的人，具體說出他的影響'],
+['我對「失敗」的定義，是否阻礙了我的突破？','重新定義失敗：「失敗是……的證明，代表我正在……」'],
+['哪些突破，我以為很難，做了才發現不那麼難？','回想一次「比想像中容易」的突破，它告訴你什麼？'],
+['我如何從每次失敗中快速提取洞察並繼續前進？','設計一個「失敗後5分鐘反思」的習慣：發生了什麼、我學到什麼、下一步是什麼'],
+['我如何用創新的方式面對舊有的障礙？','找出一個你重複遇到的瓶頸，想一個你從未嘗試過的解法'],
+['突破之後，我對自己的看法有什麼改變？','寫下一句話：「我現在知道我是一個能夠……的人」'],
+['這個月我完成了哪些以前認為不可能的事？','列出本月3個突破成果，無論大小，全都值得慶祝'],
+['我的突破，是否為我的目標創造了真實的推進？','檢視年度目標：本月的行動讓你前進了多少？'],
+['我如何讓這個月的勇氣成為持續突破的動能？','寫下一件你決定在11月繼續挑戰的事'],
+['我的成長，是否已開始影響我周圍的人？','思考你的改變如何像漣漪一樣擴散出去，並有意識地加強這個影響'],
+['我是否為自己的勇氣感到驕傲，而非只看到不足？','寫一封信給十月的自己，肯定這個月每一個跨出去的步伐'],
+['帶著這個月的勇氣，我準備好迎接豐盛的十一月了嗎？','回顧10月：寫下3件讓你對自己刮目相看的事，帶著新的自我認知出發']
+];
+const WD=['日','一','二','三','四','五','六'];
+const MOOD=['','很低','低落','平穩','不錯','很好'];
+const STATUS={done:'做到了',part:'做了一部分',not:'還沒'};
+const driveOf=n=>DRIVES.find(d=>n>=d.from&&n<=d.to);
+const cvar=n=>`var(--${driveOf(n).k})`;
+const pad=n=>String(n).padStart(2,'0');
+const $=id=>document.getElementById(id);
+
+function todayDay(){
+  const t=new Date();
+  if(t.getFullYear()<2026||(t.getFullYear()===2026&&t.getMonth()<9))return 0;
+  if(t.getFullYear()===2026&&t.getMonth()===9)return t.getDate();
+  return 32;
+}
+const TODAY=todayDay();
+
+// ---------- state & storage ----------
+let entries={}, review={};
+const LS='oct-journal-2026';
+let saveTimer=null;
+function setStatus(t){$('status').textContent=t}
+function lsLoad(){try{const o=JSON.parse(localStorage.getItem(LS)||'{}');entries=o.entries||{};review=o.review||{};return true}catch(e){return false}}
+function lsSave(){
+  try{localStorage.setItem(LS,JSON.stringify({entries,review,savedAt:Date.now()}));setStatus('已儲存')}
+  catch(e){setStatus('無法儲存：瀏覽器封鎖了本機儲存（例如無痕模式）')}
+}
+function queueSave(){setStatus('儲存中…');clearTimeout(saveTimer);saveTimer=setTimeout(lsSave,500)}
+window.addEventListener('beforeunload',()=>{if(saveTimer){clearTimeout(saveTimer);lsSave()}});
+
+function initStore(){
+  setStatus(lsLoad()?'已載入':'無法讀取本機儲存');
+  fillReviewFields();renderAll(true);
+}
+
+// ---------- helpers ----------
+const E=n=>entries[n]||{};
+const written=n=>{const e=E(n);return !!((e.journal||'').trim()||(e.action||'').trim()||(e.take||'').trim()||e.status||e.mood)};
+function wdOf(n){return WD[new Date(2026,9,n).getDay()]}
+
+// ---------- Today ----------
+let cur=Math.min(Math.max(TODAY,1),31);
+function fillEditor(){
+  const n=cur,d=driveOf(n),e=E(n);
+  $('sheet').style.setProperty('--c',cvar(n));
+  $('bigdate').textContent='10/'+n;
+  $('wd').textContent='星期'+wdOf(n);
+  $('chip').textContent=d.name+' · '+d.sub;
+  $('question').textContent=DAYS[n-1][0];
+  $('actionText').textContent=DAYS[n-1][1];
+  $('f-journal').value=e.journal||'';
+  $('f-action').value=e.action||'';
+  $('f-take').value=e.take||'';
+  markSeg('f-status',e.status||'');markSeg('f-mood',String(e.mood||''));
+  $('prev').disabled=n<=1;$('next').disabled=n>=31;
+  $('dayHint').textContent=TODAY===0?'10/1 開始，現在可以先預覽':(n===TODAY?'今天':(n>TODAY&&TODAY<32?'還沒到這一天':''));
+}
+function markSeg(id,v){document.querySelectorAll('#'+id+' button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v)))}
+function editField(k,v){entries[cur]=Object.assign({},E(cur),{[k]:v});queueSave(cur);renderMeter()}
+$('f-journal').addEventListener('input',e=>editField('journal',e.target.value));
+$('f-action').addEventListener('input',e=>editField('action',e.target.value));
+$('f-take').addEventListener('input',e=>editField('take',e.target.value));
+$('f-status').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const v=E(cur).status===b.dataset.v?'':b.dataset.v;editField('status',v);markSeg('f-status',v)});
+$('f-mood').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const v=E(cur).mood===+b.dataset.v?0:+b.dataset.v;editField('mood',v);markSeg('f-mood',String(v||''))});
+$('prev').onclick=()=>{if(cur>1){cur--;fillEditor()}};
+$('next').onclick=()=>{if(cur<31){cur++;fillEditor()}};
+
+// ---------- Meter ----------
+function renderMeter(){
+  const s=$('strip');s.innerHTML='';let c=0;
+  for(let n=1;n<=31;n++){const i=document.createElement('i');i.style.setProperty('--c',cvar(n));if(written(n)){i.className='on';c++}s.append(i)}
+  $('meterNum').textContent=c+' / 31 天';
+}
+
+// ---------- Calendar ----------
+function renderCal(){
+  const cal=$('cal');cal.innerHTML='';
+  DRIVES.forEach(d=>{
+    const row=document.createElement('div');row.className='drow';row.style.setProperty('--c',`var(--${d.k})`);
+    const lab=document.createElement('div');lab.className='dlabel';
+    lab.innerHTML=`<b></b><span></span>`;lab.querySelector('b').textContent=d.name;lab.querySelector('span').textContent=d.sub;
+    const cells=document.createElement('div');cells.className='dcells';
+    for(let n=d.from;n<=d.to;n++){
+      const e=E(n),b=document.createElement('button');b.type='button';
+      b.className='cell'+(written(n)?' done':'')+(n===TODAY?' today':'');
+      b.innerHTML=`<span class="d">10/${n}<small>${wdOf(n)}</small></span><span class="q"></span><span class="tags"></span>`;
+      b.querySelector('.q').textContent=DAYS[n-1][0];
+      const tags=b.querySelector('.tags');
+      if(e.status){const t=document.createElement('span');t.className='tag s-'+e.status;t.textContent=STATUS[e.status];tags.append(t)}
+      if(e.mood){const t=document.createElement('span');t.className='tag m';t.textContent='心情 '+e.mood;tags.append(t)}
+      b.onclick=()=>{cur=n;fillEditor();show('today')};
+      cells.append(b);
+    }
+    row.append(lab,cells);cal.append(row);
+  });
+}
+
+// ---------- Review ----------
+function stats(){
+  let w=0,done=0,ms=0,mc=0,run=0,best=0;
+  for(let n=1;n<=31;n++){
+    const e=E(n);
+    if(written(n)){w++;run++;best=Math.max(best,run)}else run=0;
+    if(e.status==='done')done++;
+    if(e.mood){ms+=e.mood;mc++}
+  }
+  return{w,done,best,avg:mc?(ms/mc).toFixed(1):'–'};
+}
+function renderReview(){
+  const s=stats();
+  $('reviewNote').textContent=TODAY<=31
+    ?'10/31 寫完之後，這裡就是你整個月的完整回顧。現在可以先看目前累積的紀錄。'
+    :'十月結束了。從上往下看完紀錄，再寫下最後的回顧。';
+  $('tiles').innerHTML='';
+  [[s.w+' / 31','寫了日記的天數'],[s.done,'行動「做到了」的天數'],[s.best,'最長連續書寫天數'],[s.avg,'平均心情（1–5）']].forEach(([v,l])=>{
+    const t=document.createElement('div');t.className='tile';t.innerHTML='<b></b><span></span>';
+    t.querySelector('b').textContent=v;t.querySelector('span').textContent=l;$('tiles').append(t);
+  });
+  renderMood();
+  // bars
+  const bars=$('bars');bars.innerHTML='';
+  DRIVES.forEach(d=>{
+    const tot=d.to-d.from+1;let w=0,dn=0;
+    for(let n=d.from;n<=d.to;n++){if(written(n))w++;if(E(n).status==='done')dn++}
+    const r=document.createElement('div');r.className='bar';r.style.setProperty('--c',`var(--${d.k})`);
+    r.innerHTML=`<span></span><div class="track"><div class="fill" style="width:${w/tot*100}%"></div><div class="fill2" style="width:${dn/tot*100}%"></div></div><span class="v">${w}／${dn}／${tot}</span>`;
+    r.firstChild.textContent=d.name;bars.append(r);
+  });
+  // takeaways
+  const ul=$('takes');ul.innerHTML='';let any=false;
+  for(let n=1;n<=31;n++){
+    const t=(E(n).take||'').trim();if(!t)continue;any=true;
+    const li=document.createElement('li');li.style.setProperty('--c',cvar(n));
+    li.innerHTML='<span class="d">10/'+n+'</span><span class="t"></span>';li.querySelector('.t').textContent=t;ul.append(li);
+  }
+  if(!any)ul.innerHTML='<li class="empty" style="display:block">每天寫下的「一句話收穫」會集中在這裡。</li>';
+}
+function renderMood(){
+  const W=640,H=190,L=36,R=12,T=14,B=30,x=n=>L+(n-1)*(W-L-R)/30,y=m=>T+(5-m)*(H-T-B)/4;
+  let g='';
+  for(let m=1;m<=5;m++)g+=`<line x1="${L}" x2="${W-R}" y1="${y(m)}" y2="${y(m)}" stroke="var(--line)" stroke-width="1"/><text x="${L-10}" y="${y(m)+4}" text-anchor="end" font-size="11" fill="var(--faint)" font-family="IBM Plex Mono,monospace">${m}</text>`;
+  [1,5,10,15,20,25,31].forEach(n=>g+=`<text x="${x(n)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--faint)" font-family="IBM Plex Mono,monospace">10/${n}</text>`);
+  let path='',prev=false,dots='',cnt=0;
+  for(let n=1;n<=31;n++){
+    const m=E(n).mood;
+    if(m){path+=(prev?'L':'M')+x(n).toFixed(1)+' '+y(m).toFixed(1)+' ';prev=true;cnt++;
+      dots+=`<circle cx="${x(n)}" cy="${y(m)}" r="${n===TODAY?5.5:4}" fill="${cvar(n)}" stroke="var(--surface)" stroke-width="1.5"><title>10/${n} 心情 ${m}（${MOOD[m]}）</title></circle>`;}
+    else prev=false;
+  }
+  const empty=cnt?'':`<text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="13" fill="var(--faint)">記錄心情後，這裡會畫出你這個月的起伏</text>`;
+  $('moodChart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="十月每日心情">${g}<path d="${path}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linejoin="round" opacity=".6"/>${dots}${empty}</svg>`;
+}
+const RF={'r-break':'breakthrough','r-hard':'hardest','r-self':'newSelf','r-carry':'carry'};
+function fillReviewFields(){Object.entries(RF).forEach(([id,k])=>{if(document.activeElement!==$(id))$(id).value=review[k]||''})}
+Object.entries(RF).forEach(([id,k])=>$(id).addEventListener('input',e=>{review=Object.assign({},review,{[k]:e.target.value});queueSave('R')}));
+
+// ---------- export ----------
+function allText(){
+  let out='十月突破日記 2026\n\n';
+  for(let n=1;n<=31;n++){
+    const e=E(n);if(!written(n))continue;
+    out+=`【10/${n}（${wdOf(n)}）${driveOf(n).name}】\n提問：${DAYS[n-1][0]}\n行動：${DAYS[n-1][1]}\n`;
+    if(e.journal)out+=`我的回答：${e.journal}\n`;
+    if(e.status)out+=`行動狀態：${STATUS[e.status]}\n`;
+    if(e.action)out+=`行動紀錄：${e.action}\n`;
+    if(e.mood)out+=`心情：${e.mood}（${MOOD[e.mood]}）\n`;
+    if(e.take)out+=`一句話收穫：${e.take}\n`;
+    out+='\n';
+  }
+  const rv=[['這個月最大的突破','breakthrough'],['最困難的一天','hardest'],['對自己的新認識','newSelf'],['帶到 11 月的一件事','carry']].filter(([,k])=>(review[k]||'').trim());
+  if(rv.length){out+='【月底回顧】\n';rv.forEach(([l,k])=>out+=`${l}：${review[k]}\n`)}
+  return out;
+}
+function copyText(t,okMsg){
+  const fallback=()=>{const f=$('copyFallback');f.hidden=false;f.value=t;f.focus();f.select();$('copyStatus').textContent='請按 Ctrl+C（手機長按）複製選取的文字'};
+  if(!navigator.clipboard){fallback();return}
+  navigator.clipboard.writeText(t).then(()=>{$('copyStatus').textContent=okMsg;$('copyFallback').hidden=true}).catch(fallback);
+}
+$('copyAll').onclick=()=>copyText(allText(),'已複製日記文字');
+$('copyPrompt').onclick=()=>{
+  if(stats().w===0){$('copyStatus').textContent='先寫幾天日記，AI 才有內容可以讀。';return}
+  const prompt='你是一位溫暖、具體、不說空話的成長教練。以下是我 2026 年 10 月的「突破行動」日記。每天有一個提問和一個行動，分成六種驅動力（紫：歸屬與內在安全、藍：系統、紅：行動、綠：關係、黃：洞察與創新、橙：成果）。\n\n請用繁體中文幫我寫一份月度回顧，分成四段：\n1. 這個月的突破（引用具體日期與我寫的原文）\n2. 反覆出現的模式或卡點\n3. 心情與行動的關係\n4. 給 11 月的三個具體建議\n\n全文約 500 字。只根據日記內容說話，不要編造沒寫到的事。\n\n---\n'+allText();
+  copyText(prompt,'已複製，貼到 AI 對話框就可以開始');
+};
+
+// ---------- backup ----------
+$('exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify({app:'oct-journal-2026',entries,review,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='十月突破日記備份-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  $('backupStatus').textContent='已下載備份檔';
+};
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  f.text().then(t=>{
+    const o=JSON.parse(t);
+    if(!o||o.app!=='oct-journal-2026'||typeof o.entries!=='object')throw new Error('bad');
+    entries=o.entries||{};review=o.review||{};lsSave();
+    fillReviewFields();renderAll(true);renderReview();
+    $('backupStatus').textContent='已匯入備份';
+  }).catch(()=>{$('backupStatus').textContent='這不是十月突破日記的備份檔，請重新選擇。'});
+  e.target.value='';
+};
+
+// ---------- views ----------
+const VIEWS=['today','calendar','review'];
+function show(v){
+  VIEWS.forEach(k=>{$('view-'+k).hidden=k!==v;$('tab-'+k).setAttribute('aria-selected',String(k===v))});
+  if(v==='calendar')renderCal();
+  if(v==='review')renderReview();
+  try{history.replaceState(null,'','#'+v)}catch(e){}
+}
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>show(b.dataset.view));
+function renderAll(refillEditor){
+  renderMeter();
+  if(refillEditor&&!['f-journal','f-action','f-take'].includes(document.activeElement&&document.activeElement.id))fillEditor();
+  if(!$('view-calendar').hidden)renderCal();
+  if(!$('view-review').hidden)renderReview();
+}
+
+fillEditor();renderMeter();
+show(VIEWS.includes(location.hash.slice(1))?location.hash.slice(1):'today');
+initStore();
+</script>
+</body>
+</html>
